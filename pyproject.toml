@@ -1,0 +1,121 @@
+[project]
+name = "rncp-rag"
+version = "0.1.0"
+description = "Assistant RAG pour analyser la couverture du référentiel RNCP Dev IA"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "chainlit>=2.11.1",
+    "chromadb>=1.5.8",
+    "langchain>=1.2.15",
+    "langchain-chroma>=1.1.0",
+    "langchain-huggingface>=1.2.2",
+    "langchain-openai>=1.2.1",
+    "langchain-text-splitters>=1.1.2",
+    "pydantic>=2.13.3",
+    "python-dotenv>=1.2.2",
+    "sentence-transformers>=5.4.1",
+]
+
+[dependency-groups]
+dev = [
+    "bandit>=1.9.3",
+    "pip-audit>=2.7",
+    "pre-commit>=4.0",
+    "pytest>=8.0",
+    "pytest-cov>=6.0",
+    "pyright>=1.1.408",
+    "python-semantic-release>=9.0",
+    "ruff>=0.9.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+exclude = [
+    ".git",
+    ".venv",
+    "chroma_db",
+    "standards",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+ignore = [
+    "E501",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/**" = ["T201"]
+"tests/**" = ["S101"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pyright]
+pythonVersion = "3.12"
+include = ["src"]
+exclude = [
+    ".venv",
+    "chroma_db",
+    "standards",
+    "tests",
+]
+typeCheckingMode = "basic"
+
+[tool.bandit]
+exclude_dirs = [
+    ".venv",
+    "chroma_db",
+    "standards",
+    "tests",
+]
+skips = []
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests/unit"]
+python_files = "test_*.py"
+python_functions = "test_*"
+addopts = "--strict-markers"
+markers = [
+    "integration: tests nécessitant l'index Chroma ou un service externe",
+]
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+branch = "main"
+changelog_file = "CHANGELOG.md"
+upload_to_pypi = false
+upload_to_release = true
+
+[tool.semantic_release.branches.main]
+match = "main"
+prerelease = false
+
+[tool.semantic_release.branches.develop]
+match = "develop"
+prerelease = true
+prerelease_token = "rc"
+
+[tool.semantic_release.changelog]
+exclude_commit_patterns = ["^chore", "^ci", "^docs", "^style", "^test"]
+
+[tool.semantic_release.commit_parser_options]
+minor_tags = ["feat"]
+patch_tags = ["fix", "perf"]
+
+[tool.semantic_release.remote]
+type = "github"
+
+[tool.semantic_release.publish]
+dist_glob_patterns = []
