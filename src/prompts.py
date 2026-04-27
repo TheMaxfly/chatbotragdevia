@@ -31,12 +31,20 @@ Ta mission est d'analyser des projets décrits par des apprenants de la formatio
 
 3. **Tu ne dois JAMAIS sur-interpréter le projet.** Si le projet ne mentionne pas explicitement Docker, tu ne peux pas affirmer qu'il "utilise probablement Docker". Tu te bases UNIQUEMENT sur ce qui est écrit dans la description du projet.
 
-4. **Tu utilises le niveau de confiance avec rigueur :**
-   - `élevée` : plusieurs critères du référentiel sont clairement et explicitement remplis par le projet
-   - `moyenne` : la couverture est partielle ou un seul critère est rempli sans ambiguïté
-   - `faible` : tu infères avec un doute raisonnable, l'utilisateur devrait vérifier
+4. **Chaque code de compétence apparaît UNE SEULE FOIS dans `competences_couvertes`.** N'inscris JAMAIS C9 deux fois, ni C10 deux fois. Si le contexte contient plusieurs extraits pour la même compétence, tu les fusionnes en une seule entrée.
 
-5. **Pour les compétences manquantes**, tu listes UNIQUEMENT celles qui auraient été naturellement attendues compte tenu du contexte du projet. Pas la peine d'énumérer les 20 compétences absentes : 2 à 5 codes maximum, choisis pour leur pertinence.
+5. **Identifie 6 à 12 compétences couvertes** quand le projet est riche (mention explicite de plusieurs technologies, activités ou méthodes). Sois exhaustif : un projet complet peut légitimement couvrir 10 compétences. Ne te limite pas artificiellement, mais ne couvre une compétence que si AU MOINS un critère d'évaluation est clairement rempli.
+
+6. **`competences_manquantes` ne contient JAMAIS un code déjà présent dans `competences_couvertes`.** Une compétence ne peut pas être à la fois couverte ET manquante.
+
+7. **`blocs_couverts` reflète tous les blocs des compétences couvertes.** Si tu listes C13 (bloc 2) et C19 (bloc 3), alors `blocs_couverts` doit être [2, 3].
+
+8. **Tu utilises le niveau de confiance avec rigueur :**
+   - `élevée` : plusieurs critères du référentiel sont clairement et explicitement remplis
+   - `moyenne` : la couverture est partielle ou un seul critère est rempli sans ambiguïté
+   - `faible` : tu infères avec un doute raisonnable
+
+9. **Pour `competences_manquantes`**, tu listes UNIQUEMENT 2 à 5 codes pertinents au regard du projet mais non couverts. Pas la peine d'énumérer toutes les compétences absentes.
 
 # Méthodologie
 
@@ -75,8 +83,10 @@ def format_context(documents: list[Document]) -> str:
     Formate les documents récupérés par le retriever en un bloc de texte
     structuré et lisible par le LLM.
 
-    Chaque document est précédé d'un en-tête indiquant son code/terme et
-    son type, ce qui aide le LLM à se repérer dans le contexte.
+    DÉDUPLICATION : si plusieurs chunks portent le même code/terme (cas des
+    sous-chunks issus du re-split), on ne garde QUE LE PREMIER (le plus pertinent
+    par ordre de similarité). Cela évite que le LLM duplique la compétence dans
+    sa sortie.
 
     Args:
         documents: Liste des Documents retournés par le retriever.
@@ -87,16 +97,24 @@ def format_context(documents: list[Document]) -> str:
     if not documents:
         return "(Aucun extrait du référentiel n'a été trouvé pour cette requête.)"
 
+    # Déduplication par code/terme : on garde le premier chunk vu
+    seen_ids = set()
+    unique_docs = []
+    for doc in documents:
+        meta = doc.metadata
+        identifier = meta.get("code") or meta.get("terme") or id(doc)
+        if identifier in seen_ids:
+            continue
+        seen_ids.add(identifier)
+        unique_docs.append(doc)
+
     formatted_blocks = []
-    for i, doc in enumerate(documents, 1):
+    for i, doc in enumerate(unique_docs, 1):
         meta = doc.metadata
         type_ = meta.get("type", "?")
         label = meta.get("code") or meta.get("terme") or "?"
 
-        # Header explicite pour aider le LLM à se repérer
         header = f"--- Extrait {i} | type={type_} | id={label} ---"
-
-        # Le contenu du chunk lui-même (déjà préfixé par l'enrichissement Bloc 1)
         content = doc.page_content.strip()
 
         formatted_blocks.append(f"{header}\n{content}")

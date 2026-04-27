@@ -50,6 +50,8 @@ for msg in final_messages:
 # 4. Aperçu du prompt final
 print("\n🔍 Aperçu des 500 premiers caractères du prompt 'human' :")
 human_msg = final_messages[1].content
-print(human_msg[:500] + "...")
+if not isinstance(human_msg, str):
+    human_msg = str(human_msg)
+print(f"{human_msg[:500]}...")
 
 print("\n✅ Prompt template fonctionnel")

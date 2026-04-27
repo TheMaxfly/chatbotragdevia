@@ -19,6 +19,9 @@ htmlcov/
 data/*.pdf
 chroma_db/
 
+# Artefacts de test
+tmp_*.md
+
 # IDE
 .vscode/
 .idea/

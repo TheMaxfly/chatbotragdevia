@@ -9,7 +9,7 @@ Le schéma est exposé au LLM via PydanticOutputParser dans src/prompts.py.
 
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class CompetenceCouverte(BaseModel):
@@ -147,3 +147,42 @@ class AnalyseProjet(BaseModel):
     def validate_blocs(cls, v: list[int]) -> list[int]:
         """Valide que chaque numéro de bloc est entre 1 et 3."""
         return [b for b in v if b in (1, 2, 3)]
+
+    @model_validator(mode="after")
+    def coherence_couvertes_manquantes(self) -> "AnalyseProjet":
+        """
+        Garantit qu'aucun code n'apparaît à la fois dans 'couvertes' et 'manquantes'.
+
+        Si le LLM contredit cette règle, on retire le code de 'manquantes'.
+        Les couvertes sont la source de vérité (elles contiennent + d'info).
+        """
+        codes_couverts = {c.code for c in self.competences_couvertes}
+        self.competences_manquantes = [
+            code for code in self.competences_manquantes if code not in codes_couverts
+        ]
+        return self
+
+    @model_validator(mode="after")
+    def coherence_blocs_couverts(self) -> "AnalyseProjet":
+        """
+        Reconstruit `blocs_couverts` à partir des compétences réellement couvertes.
+
+        Mapping compétence → bloc :
+            C1-C5   → Bloc 1
+            C6-C13  → Bloc 2
+            C14-C21 → Bloc 3
+
+        Cela élimine les incohérences classiques où le LLM oublie de mentionner
+        un bloc alors qu'une compétence du bloc est couverte (ou inversement).
+        """
+        blocs = set()
+        for comp in self.competences_couvertes:
+            n = int(comp.code[1:])
+            if 1 <= n <= 5:
+                blocs.add(1)
+            elif 6 <= n <= 13:
+                blocs.add(2)
+            elif 14 <= n <= 21:
+                blocs.add(3)
+        self.blocs_couverts = sorted(blocs)
+        return self
