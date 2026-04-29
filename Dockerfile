@@ -25,11 +25,12 @@ RUN uv sync --frozen --no-dev --no-install-project
 
 COPY app.py chainlit.md ./
 COPY .chainlit ./.chainlit
-COPY chroma_db ./chroma_db
 COPY data ./data
 COPY public ./public
 COPY scripts ./scripts
 COPY src ./src
+
+RUN uv run --no-dev python scripts/ingest.py
 
 RUN groupadd --gid "${GID}" app \
     && useradd --uid "${UID}" --gid "${GID}" --create-home app \

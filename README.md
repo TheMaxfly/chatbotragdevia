@@ -10,6 +10,8 @@ pinned: false
 
 # Assistant RAG RNCP Dev IA
 
+> **Démo publique** : <https://maxthemad1983-rncp-rag.hf.space/>
+
 Assistant conversationnel pour aider les formateurs et apprenants Simplon à analyser la couverture d'un projet par rapport au référentiel RNCP **Développeur en Intelligence Artificielle**.
 
 ## Problème traité
@@ -302,6 +304,9 @@ bash scripts/deploy_azure_container_apps.sh
 ```
 
 ## Déploiement Hugging Face Spaces
+
+L'application est déployée publiquement sur Hugging Face Spaces :
+<https://maxthemad1983-rncp-rag.hf.space/>
 
 Un déploiement Hugging Face Spaces avec SDK Docker est documenté dans
 [`docs/huggingface-spaces-deployment.md`](docs/huggingface-spaces-deployment.md).
