@@ -48,7 +48,7 @@ jobs:
         run: uv sync --all-groups
 
       - name: Pyright type check
-        run: uv run pyright "${PACKAGE_DIR}/"
+        run: uv run pyright "${PACKAGE_DIR}/" app.py
 
   security:
     name: Security
@@ -76,6 +76,7 @@ jobs:
         with:
           scan-type: fs
           scan-ref: .
+          skip-dirs: .venv
           severity: CRITICAL,HIGH
           ignore-unfixed: true
           exit-code: "1"

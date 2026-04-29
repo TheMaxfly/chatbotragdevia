@@ -31,6 +31,6 @@ tmp_*.md
 .DS_Store
 
 # Chainlit
-.chainlit/
+.chainlit/translations/
 .files/
 chainlit.md
