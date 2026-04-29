@@ -1,3 +1,13 @@
+---
+title: Assistant RAG RNCP Dev IA
+emoji: "🎓"
+colorFrom: red
+colorTo: gray
+sdk: docker
+app_port: 8000
+pinned: false
+---
+
 # Assistant RAG RNCP Dev IA
 
 Assistant conversationnel pour aider les formateurs et apprenants Simplon à analyser la couverture d'un projet par rapport au référentiel RNCP **Développeur en Intelligence Artificielle**.
@@ -209,15 +219,92 @@ Ces tests ne prouvent pas toute la qualité du chatbot, mais ils permettent de v
 
 ## Lancement de l'interface
 
-L'interface conversationnelle n'est pas encore présente dans le dépôt. La cible recommandée pour ce projet est Chainlit, déjà déclaré dans les dépendances.
-
-Commande prévue une fois l'application ajoutée :
+L'interface conversationnelle Chainlit se lance avec :
 
 ```bash
 uv run chainlit run app.py
 ```
 
 Pour une version Gradio, le même pipeline RAG pourra être appelé depuis une fonction `respond(message, history)`.
+
+## Lancement avec Docker
+
+L'image Docker n'embarque pas le fichier `.env`.
+Le dossier `chroma_db/` est inclus pour Hugging Face Spaces ; en local, le
+montage de volume ci-dessous permet d'utiliser ou de remplacer l'index courant.
+
+### 1. Préparer les variables d'environnement
+
+```bash
+cp .env.example .env
+```
+
+Pour OpenAI, renseigner au minimum :
+
+```env
+LLM_BASE_URL=https://api.openai.com/v1
+OPENAI_API_KEY=sk-...
+LLM_MODEL=<modele-openai>
+```
+
+Pour LM Studio depuis Docker, remplacer `localhost` par `host.docker.internal` :
+
+```env
+LLM_BASE_URL=http://host.docker.internal:1234/v1
+LLM_API_KEY=lm-studio
+LLM_MODEL=qwen/qwen3-4b-2507
+```
+
+### 2. Générer l'index Chroma si nécessaire
+
+```bash
+uv run python scripts/ingest.py
+```
+
+ou via Docker Compose :
+
+```bash
+docker compose run --rm rncp-rag python scripts/ingest.py
+```
+
+### 3. Construire et lancer l'application
+
+Avec Docker :
+
+```bash
+docker build -t rncp-rag:local .
+docker run --rm \
+  --env-file .env \
+  --add-host=host.docker.internal:host-gateway \
+  -e CHROMA_PERSIST_DIR=/app/chroma_db \
+  -p 8000:8000 \
+  -v "$PWD/chroma_db:/app/chroma_db" \
+  rncp-rag:local
+```
+
+Avec Docker Compose :
+
+```bash
+docker compose up --build
+```
+
+L'interface est ensuite disponible sur `http://localhost:8000`.
+
+## Déploiement Azure
+
+Un déploiement Azure Container Apps est documenté dans
+[`docs/azure-deployment.md`](docs/azure-deployment.md).
+
+Le script associé est :
+
+```bash
+bash scripts/deploy_azure_container_apps.sh
+```
+
+## Déploiement Hugging Face Spaces
+
+Un déploiement Hugging Face Spaces avec SDK Docker est documenté dans
+[`docs/huggingface-spaces-deployment.md`](docs/huggingface-spaces-deployment.md).
 
 ## Qualité, tests et CI/CD
 

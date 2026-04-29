@@ -1,0 +1,39 @@
+:root {
+  --simplon-red: #e4003a;
+  --simplon-ink: #063b46;
+  --simplon-bg: #f6f8f8;
+  --simplon-border: #d7e0e2;
+}
+
+body {
+  background: var(--simplon-bg);
+}
+
+a,
+button {
+  letter-spacing: 0;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+  color: var(--simplon-ink);
+  letter-spacing: 0;
+}
+
+.markdown-body blockquote {
+  border-left: 4px solid var(--simplon-red);
+  background: #fff5f7;
+  color: #263b40;
+  padding: 0.75rem 1rem;
+  border-radius: 0 6px 6px 0;
+}
+
+.markdown-body code {
+  color: var(--simplon-ink);
+}
+
+button[aria-label="Analyser"] {
+  border-radius: 6px;
+  border: 1px solid var(--simplon-red);
+}

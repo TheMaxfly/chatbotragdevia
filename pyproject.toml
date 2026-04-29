@@ -63,7 +63,7 @@ indent-style = "space"
 
 [tool.pyright]
 pythonVersion = "3.12"
-include = ["src"]
+include = ["src", "app.py"]
 exclude = [
     ".venv",
     "chroma_db",

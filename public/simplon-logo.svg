@@ -1,0 +1,8 @@
+<svg width="174" height="54" viewBox="0 0 174 54" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="simplon">
+  <rect width="174" height="54" fill="white"/>
+  <circle cx="38" cy="27" r="12" fill="#E4003A"/>
+  <circle cx="38" cy="27" r="7" fill="white"/>
+  <circle cx="38" cy="22" r="2" fill="#E4003A"/>
+  <rect x="36" y="27" width="4" height="7" rx="1.5" fill="#E4003A"/>
+  <text x="55" y="34" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#063B46">simplon</text>
+</svg>

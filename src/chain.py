@@ -38,8 +38,14 @@ from src.schemas import AnalyseProjet
 load_dotenv()
 
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "http://localhost:1234/v1")
-LLM_API_KEY = os.getenv("LLM_API_KEY", "lm-studio")
+LLM_API_KEY = (
+    os.getenv("LLM_API_KEY")
+    or os.getenv("OPENAI_API_KEY")
+    or os.getenv("HF_TOKEN", "lm-studio")
+)
 LLM_MODEL = os.getenv("LLM_MODEL", "qwen/qwen3-4b-2507")
+LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "180"))
+LLM_MAX_COMPLETION_TOKENS = int(os.getenv("LLM_MAX_COMPLETION_TOKENS", "1200"))
 
 
 # === Factories internes ===
@@ -60,8 +66,8 @@ def _make_llm() -> ChatOpenAI:
         api_key=SecretStr(LLM_API_KEY),
         model=LLM_MODEL,
         temperature=0,
-        timeout=180,  # Qwen3-4B sur GPU peut mettre 30-60s pour des outputs longs
-        max_completion_tokens=2500,
+        timeout=LLM_TIMEOUT,
+        max_completion_tokens=LLM_MAX_COMPLETION_TOKENS,
     )
 
 
